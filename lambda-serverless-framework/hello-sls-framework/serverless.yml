@@ -1,0 +1,16 @@
+org: renatolomba20
+app: hello-sls-framework
+service: hello-sls-framework
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
