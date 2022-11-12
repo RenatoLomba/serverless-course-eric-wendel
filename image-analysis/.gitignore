@@ -5,3 +5,6 @@ dist
 
 # Serverless directories
 .serverless
+
+# Jest
+coverage
