@@ -1,0 +1,17 @@
+{
+  "name": "image-analysis",
+  "version": "1.0.0",
+  "description": "Serverless application to do image analysis using AWS Rekognition and AWS Translate.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.1251.0"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1",
+    "serverless": "^3.24.1"
+  }
+}
