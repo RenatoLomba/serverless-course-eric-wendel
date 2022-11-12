@@ -21,7 +21,7 @@ provider:
 
 functions:
   image-analysis:
-    handler: src/index.main
+    handler: dist/index.main
     events:
       - httpApi:
           path: /analyse
