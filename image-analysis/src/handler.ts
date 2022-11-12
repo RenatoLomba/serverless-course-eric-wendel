@@ -8,8 +8,6 @@ export class Handler {
   ) {}
 
   async main(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
-    console.log('EVENT', event)
-
     return {
       statusCode: 200,
       body: JSON.stringify(
