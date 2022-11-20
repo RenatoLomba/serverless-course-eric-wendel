@@ -1,0 +1,26 @@
+service: api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  environment:
+    LOCALSTACK_HOST: ${env:LOCALSTACK_HOST, "localhost"}
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action: 's3:ListAllMyBuckets'
+          Resource: '*'
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+functions:
+  hello:
+    handler: ./src/index.main
+    events:
+      - httpApi:
+          path: /
+          method: get
