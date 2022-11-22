@@ -9,6 +9,7 @@ const dynamoDBTable = process.env.DYNAMODB_TABLE
 
 const createHeroSchema = z.object({
   name: z.string().min(1),
+  power: z.string().nullable().optional(),
 })
 
 type CreateHeroData = z.infer<typeof createHeroSchema>
@@ -48,6 +49,7 @@ export const main = async (
 
   const id = uuid().toString()
   const name = createHeroData.name
+  const power = createHeroData.power
   const createdAt = new Date().toISOString()
 
   const params = {
@@ -58,6 +60,10 @@ export const main = async (
       createdAt: { S: createdAt },
     },
   } as DynamoDB.PutItemInput
+
+  if (power) {
+    params.Item.power = { S: power }
+  }
 
   try {
     await dynamoDB
@@ -86,6 +92,7 @@ export const main = async (
       hero: {
         id,
         name,
+        power,
         createdAt,
       },
     }),
