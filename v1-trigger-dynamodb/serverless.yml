@@ -1,0 +1,53 @@
+service: api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+  environment:
+    LOCALSTACK_HOST: ${env:LOCALSTACK_HOST, "localhost"}
+    DYNAMODB_TABLE: ${env:DYNAMODB_TABLE, "Heroes"}
+    AWS_REGION: ${self:provider.region, 'us-east-1'}
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:UpdateItem
+            - dynamodb:PutItem
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}'
+
+resources:
+  Resources:
+    HeroesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: name
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+functions:
+  hero-insert:
+    handler: ./src/handlers/heroesInsert.main
+    events:
+      - httpApi:
+          path: /heroes
+          method: post
+          cors: true
