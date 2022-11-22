@@ -3,8 +3,6 @@ import type { DynamoDB } from 'aws-sdk'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 
-import { dynamoDB } from '../factory'
-
 const dynamoDBTable = process.env.DYNAMODB_TABLE
 
 const createHeroSchema = z.object({
@@ -14,87 +12,89 @@ const createHeroSchema = z.object({
 
 type CreateHeroData = z.infer<typeof createHeroSchema>
 
-export const main = async (
-  event: APIGatewayEvent,
-): Promise<APIGatewayProxyResult> => {
-  if (!event.body) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        errors: [
-          {
-            message: 'Body is required',
-          },
-        ],
-      }),
+export class HeroesInsert {
+  constructor(private dynamoDb: DynamoDB) {}
+
+  async main(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          errors: [
+            {
+              message: 'Body is required',
+            },
+          ],
+        }),
+      }
     }
-  }
 
-  const data = JSON.parse(event.body)
+    const data = JSON.parse(event.body)
 
-  let createHeroData = {} as CreateHeroData
+    let createHeroData = {} as CreateHeroData
 
-  const validationResult = createHeroSchema.safeParse(data)
+    const validationResult = createHeroSchema.safeParse(data)
 
-  if (!validationResult.success) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        errors: validationResult.error.issues,
-      }),
+    if (!validationResult.success) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          errors: validationResult.error.issues,
+        }),
+      }
     }
-  }
 
-  createHeroData = validationResult.data
+    createHeroData = validationResult.data
 
-  const id = uuid().toString()
-  const name = createHeroData.name
-  const power = createHeroData.power
-  const createdAt = new Date().toISOString()
+    const id = uuid().toString()
+    const name = createHeroData.name
+    const power = createHeroData.power
+    const createdAt = new Date().toISOString()
 
-  const params = {
-    TableName: dynamoDBTable!,
-    Item: {
-      id: { S: id },
-      name: { S: name },
-      createdAt: { S: createdAt },
-    },
-  } as DynamoDB.PutItemInput
-
-  if (power) {
-    params.Item.power = { S: power }
-  }
-
-  try {
-    await dynamoDB
-      .putItem({
-        ...params,
-      })
-      .promise()
-  } catch (err) {
-    console.error('HERO INSERT DYNAMODB ERROR\n', err.stack)
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        errors: [
-          {
-            message: "Couldn't create item",
-          },
-        ],
-      }),
-    }
-  }
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      hero: {
-        id,
-        name,
-        power,
-        createdAt,
+    const params = {
+      TableName: dynamoDBTable!,
+      Item: {
+        id: { S: id },
+        name: { S: name },
+        createdAt: { S: createdAt },
       },
-    }),
+    } as DynamoDB.PutItemInput
+
+    if (power) {
+      params.Item.power = { S: power }
+    }
+
+    try {
+      await this.dynamoDb
+        .putItem({
+          ...params,
+        })
+        .promise()
+    } catch (err) {
+      console.error('HERO INSERT DYNAMODB ERROR\n', err.stack)
+
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          errors: [
+            {
+              message: "Couldn't create item",
+            },
+          ],
+        }),
+      }
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        hero: {
+          id,
+          name,
+          power,
+          createdAt,
+        },
+      }),
+    }
   }
 }

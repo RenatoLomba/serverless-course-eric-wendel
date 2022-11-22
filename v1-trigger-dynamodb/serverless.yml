@@ -45,7 +45,7 @@ plugins:
 
 functions:
   hero-insert:
-    handler: ./src/handlers/heroesInsert.main
+    handler: ./src/index.heroesInsertHandler
     events:
       - httpApi:
           path: /heroes

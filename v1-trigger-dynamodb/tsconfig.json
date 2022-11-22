@@ -8,6 +8,8 @@
     "outDir": ".build",
     "moduleResolution": "node",
     "lib": ["es2015"],
-    "rootDir": "./"
+    "rootDir": "./",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }
