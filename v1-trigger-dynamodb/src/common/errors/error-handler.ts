@@ -1,12 +1,12 @@
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { RequestException } from './request-exception'
 
 export function errorHandler(
-  fn: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>,
+  fn: (event: APIGatewayEvent) => Promise<APIGatewayProxyResult>,
 ) {
   return async function (
-    event: APIGatewayProxyEvent,
+    event: APIGatewayEvent,
   ): Promise<APIGatewayProxyResult> {
     try {
       const result = await fn(event)

@@ -26,6 +26,8 @@ export const validate = (schema: ZodObject<{}>) => {
         throw new RequestException(400, validationResult.error.issues)
       }
 
+      args[0].parsedData = validationResult.data
+
       return originalMethod.apply(this, args)
     }
   }

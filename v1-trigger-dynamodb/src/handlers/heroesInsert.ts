@@ -14,7 +14,7 @@ export class HeroesInsert {
 
   @validate(createHeroSchema)
   async main(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
-    const createHeroData = JSON.parse(event.body!) as CreateHeroData
+    const createHeroData = event.parsedData! as CreateHeroData
 
     const id = uuid().toString()
     const name = createHeroData.name
