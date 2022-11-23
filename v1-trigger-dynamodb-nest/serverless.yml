@@ -1,4 +1,4 @@
-service: api
+service: v1-trigger-dynamodb-nest
 frameworkVersion: '3'
 
 plugins:
@@ -13,7 +13,6 @@ provider:
   environment:
     LOCALSTACK_HOST: ${env:LOCALSTACK_HOST, "localhost"}
     DYNAMODB_TABLE: ${env:DYNAMODB_TABLE, "Heroes"}
-    AWS_REGION: ${self:provider.region, 'us-east-1'}
   iam:
     role:
       statements:
