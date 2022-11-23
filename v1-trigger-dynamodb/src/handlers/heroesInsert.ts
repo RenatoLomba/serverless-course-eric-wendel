@@ -1,50 +1,20 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { DynamoDB } from 'aws-sdk'
 import { v4 as uuid } from 'uuid'
-import { z } from 'zod'
+
+import { validate } from '../common/decorators/validate'
+import { RequestException } from '../common/errors/request-exception'
+import { createHeroSchema } from '../validators/create-hero.validator'
+import type { CreateHeroData } from '../validators/create-hero.validator'
 
 const dynamoDBTable = process.env.DYNAMODB_TABLE
-
-const createHeroSchema = z.object({
-  name: z.string().min(1),
-  power: z.string().nullable().optional(),
-})
-
-type CreateHeroData = z.infer<typeof createHeroSchema>
 
 export class HeroesInsert {
   constructor(private dynamoDb: DynamoDB) {}
 
+  @validate(createHeroSchema)
   async main(event: APIGatewayEvent): Promise<APIGatewayProxyResult> {
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          errors: [
-            {
-              message: 'Body is required',
-            },
-          ],
-        }),
-      }
-    }
-
-    const data = JSON.parse(event.body)
-
-    let createHeroData = {} as CreateHeroData
-
-    const validationResult = createHeroSchema.safeParse(data)
-
-    if (!validationResult.success) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          errors: validationResult.error.issues,
-        }),
-      }
-    }
-
-    createHeroData = validationResult.data
+    const createHeroData = JSON.parse(event.body!) as CreateHeroData
 
     const id = uuid().toString()
     const name = createHeroData.name
@@ -73,16 +43,11 @@ export class HeroesInsert {
     } catch (err) {
       console.error('HERO INSERT DYNAMODB ERROR\n', err.stack)
 
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          errors: [
-            {
-              message: "Couldn't create item",
-            },
-          ],
-        }),
-      }
+      throw new RequestException(500, [
+        {
+          message: "Couldn't create item",
+        },
+      ])
     }
 
     return {
