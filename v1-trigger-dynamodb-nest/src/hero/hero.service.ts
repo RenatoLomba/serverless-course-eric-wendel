@@ -1,11 +1,13 @@
 import type { DynamoDB } from 'aws-sdk';
+import { v4 as uuid } from 'uuid';
+
 import {
   Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+
 import { CreateHeroDto } from './dtos/create-hero';
-import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class HeroService {

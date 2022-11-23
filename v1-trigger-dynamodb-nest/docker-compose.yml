@@ -27,5 +27,22 @@ services:
       - AWS_SECRET_ACCESS_KEY=test
       - DYNAMODB_TABLE=Heroes
 
+  test:
+    build: .
+    command: yarn test:e2e-watch
+    volumes:
+      - .:/app
+      - nodemodules:/app/node_modules
+    restart: on-failure
+    depends_on:
+      - localstack
+    environment:
+      - IS_OFFLINE=true
+      - LOCALSTACK_HOST=localstack
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - DYNAMODB_TABLE=TestHeroes
+      - AWS_REGION=us-east-1
+
 volumes:
   nodemodules: {}

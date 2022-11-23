@@ -1,6 +1,7 @@
 import { DynamoDB, Endpoint } from 'aws-sdk';
 
 import { Module } from '@nestjs/common';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HeroController } from './hero/hero.controller';
