@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "predev": "yarn seed",
     "dev": "sls offline start --host 0.0.0.0 --reloadHandler",
     "seed": "sh ./scripts/create-dynamodb-table.sh",
     "prebuild": "rimraf dist",
