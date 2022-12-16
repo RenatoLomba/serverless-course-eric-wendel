@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "predev": "yarn seed",
+    "deploy:local": "sls deploy --stage local",
     "dev": "sls offline start --host 0.0.0.0 --reloadHandler",
     "seed": "sh ./scripts/create-dynamodb-table.sh",
     "prebuild": "rimraf dist",
@@ -17,12 +17,12 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:e2e-watch": "jest --config ./test/jest-e2e.json --watchAll"
+    "test": "IS_OFFLINE=true jest",
+    "test:watch": "IS_OFFLINE=true jest --watch",
+    "test:cov": "IS_OFFLINE=true jest --coverage",
+    "test:debug": "IS_OFFLINE=true node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "IS_OFFLINE=true jest --config ./test/jest-e2e.json",
+    "test:e2e-watch": "IS_OFFLINE=true jest --config ./test/jest-e2e.json --watchAll"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -59,6 +59,7 @@
     "plugin": "^0.3.3",
     "prettier": "^2.3.2",
     "serverless": "^3.25.0",
+    "serverless-localstack": "^1.0.1",
     "serverless-offline": "^11.5.0",
     "serverless-plugin-optimize": "^4.2.1-rc.1",
     "serverless-plugin-typescript": "^2.1.4",

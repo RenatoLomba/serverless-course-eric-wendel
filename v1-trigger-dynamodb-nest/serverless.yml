@@ -5,6 +5,24 @@ plugins:
   - serverless-plugin-typescript
   - serverless-plugin-optimize
   - serverless-offline
+  - serverless-localstack
+
+custom:
+  localstack:
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    autostart: true
+    networks:
+      - host
+      - overlay
+    lambda:
+      mountCode: False
+    docker:
+      sudo: False
+  stages:
+    local:
 
 provider:
   name: aws
