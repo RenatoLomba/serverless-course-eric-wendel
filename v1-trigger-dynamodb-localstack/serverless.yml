@@ -1,0 +1,31 @@
+service: trigger-dynamodb
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-jetpack
+  - serverless-localstack
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: any
+          path: /{proxy+}
+          cors: true
+
+custom:
+  localstack:
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    autostart: true
+    docker:
+      sudo: False
