@@ -6,7 +6,25 @@ services:
     image: localstack/localstack:1.0.4
     ports:
       - "4566:4566"
+    expose:
+      - 4566
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+  api:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - localstack
+    environment:
+      - LOCALSTACK_HOST=localstack
+      - IS_LOCAL=true
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_REGION=us-east-1
+      - HEROES_TABLE=Heroes

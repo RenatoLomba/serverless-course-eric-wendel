@@ -10,6 +10,37 @@ provider:
   name: aws
   runtime: nodejs14.x
   region: us-east-1
+  environment:
+    HEROES_TABLE: ${self:custom.heroesTableName}
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:UpdateItem
+            - dynamodb:PutItem
+          Resource: ${self:custom.heroesTableArn}
+
+resources:
+  Resources:
+    HeroesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.heroesTableName}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: name
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
 functions:
   api:
@@ -21,6 +52,8 @@ functions:
           cors: true
 
 custom:
+  heroesTableArn: !GetAtt HeroesTable.Arn
+  heroesTableName: Heroes
   localstack:
     stages:
       - local
