@@ -12,7 +12,7 @@ provider:
   region: us-east-1
   environment:
     HEROES_TABLE: ${self:custom.heroesTableName}
-    NODE_ENV: ${opt:stage}
+    NODE_ENV: ${opt:stage, "dev"}
   iam:
     role:
       statements:
@@ -26,6 +26,7 @@ provider:
             - dynamodb:ReturnConsumedCapacity
             - dynamodb:ListStreams
             - dynamodb:DescribeStream
+            - dynamodb:Scan
           Resource: ${self:custom.heroesTableArn}
 
 resources:
@@ -33,7 +34,7 @@ resources:
     HeroesTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:custom.heroesTableName}
+        TableName: ${self:custom.heroesTableName}-${opt:stage, "dev"}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -45,7 +46,6 @@ resources:
           WriteCapacityUnits: 1
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
-          StreamEnabled: true
 
 functions:
   api:
