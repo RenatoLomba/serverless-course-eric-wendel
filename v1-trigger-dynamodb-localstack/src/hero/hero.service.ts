@@ -13,7 +13,7 @@ import { Hero } from './entities/hero.entity';
 export class HeroService {
   constructor(@Inject('DYNAMODB') private readonly dynamoDb: DynamoDB) {}
 
-  private tableName = process.env.HEROES_TABLE;
+  private readonly tableName = process.env.HEROES_TABLE;
 
   async create({ name, power }: CreateHeroDto): Promise<Hero> {
     const id = new Date().getTime().toString();
@@ -52,19 +52,67 @@ export class HeroService {
     };
   }
 
-  async getAll(): Promise<any[]> {
+  async getAll(): Promise<Hero[]> {
     const heroes = await this.dynamoDb
       .scan({ TableName: this.tableName })
       .promise();
 
-    return heroes.Items.map((i) => {
-      const result = {};
+    return heroes.Items.map((i) => this.mapResultItem(i));
+  }
 
-      Object.entries(i).forEach(([key, val]) => {
-        result[key] = val.S;
-      });
+  private mapResultItem(item: DynamoDB.AttributeMap) {
+    const result = {} as Hero;
 
-      return result;
+    Object.entries(item).forEach(([key, val]) => {
+      result[key] = val.S;
     });
+
+    return result;
+  }
+
+  async getById(id: string): Promise<Hero | null> {
+    let hero: Hero | null = null;
+
+    try {
+      const data = await this.dynamoDb
+        .getItem({
+          TableName: this.tableName,
+          Key: {
+            id: { S: id },
+          },
+        })
+        .promise();
+
+      hero = !!data.Item ? this.mapResultItem(data.Item) : null;
+    } catch (err) {
+      console.error('DYNAMODB GET ITEM ERROR', err.stack);
+      throw new InternalServerErrorException('Could not get item');
+    }
+
+    return hero;
+  }
+
+  async update(id: string, name: string): Promise<void> {
+    try {
+      await this.dynamoDb
+        .updateItem({
+          TableName: this.tableName,
+          Key: {
+            id: { S: id },
+          },
+          UpdateExpression: 'set #name = :val1',
+          ExpressionAttributeNames: {
+            '#name': 'name',
+          },
+          ExpressionAttributeValues: {
+            ':val1': {
+              S: name,
+            },
+          },
+        })
+        .promise();
+    } catch (err) {
+      console.error('DYNAMODB UPDATE ITEM ERROR', err.stack);
+    }
   }
 }

@@ -12,6 +12,7 @@ provider:
   region: us-east-1
   environment:
     HEROES_TABLE: ${self:custom.heroesTableName}
+    NODE_ENV: ${opt:stage}
   iam:
     role:
       statements:
@@ -20,6 +21,11 @@ provider:
             - dynamodb:GetItem
             - dynamodb:UpdateItem
             - dynamodb:PutItem
+            - dynamodb:Select
+            - dynamodb:Attributes
+            - dynamodb:ReturnConsumedCapacity
+            - dynamodb:ListStreams
+            - dynamodb:DescribeStream
           Resource: ${self:custom.heroesTableArn}
 
 resources:
@@ -31,16 +37,15 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-          - AttributeName: name
-            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: name
-            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+          StreamEnabled: true
 
 functions:
   api:
@@ -50,6 +55,15 @@ functions:
           method: any
           path: /{proxy+}
           cors: true
+  hero-trigger:
+    handler: dist/trigger.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - HeroesTable
+              - StreamArn
 
 custom:
   heroesTableArn: !GetAtt HeroesTable.Arn
