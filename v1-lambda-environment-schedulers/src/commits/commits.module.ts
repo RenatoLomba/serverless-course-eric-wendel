@@ -2,6 +2,7 @@ import { DynamoDB, Endpoint } from 'aws-sdk';
 
 import { Module } from '@nestjs/common';
 
+import { config } from '../config';
 import { CommitsController } from './commits.controller';
 import { CommitsService } from './commits.service';
 
@@ -12,14 +13,14 @@ import { CommitsService } from './commits.service';
     {
       provide: 'DYNAMODB',
       useFactory: () => {
-        const isLocal = process.env.NODE_ENV === 'local';
+        const isLocal = config.NodeEnv === 'local';
 
         const dynamoDBConfig: DynamoDB.ClientConfiguration = {
-          region: process.env.AWS_REGION,
+          region: config.AwsRegion,
         };
 
         if (isLocal) {
-          const host = process.env.LOCALSTACK_HOSTNAME;
+          const host = config.LocalStackHostname;
 
           dynamoDBConfig.endpoint = new Endpoint(`http://${host}:4566`);
         }

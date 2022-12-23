@@ -1,8 +1,32 @@
-import { ScheduledEvent } from 'aws-lambda';
+import axios from 'axios';
+import { load } from 'cheerio';
 
-export const handler = async (event: ScheduledEvent) => {
-  console.log('ENVIRONMENT VARIABLES', JSON.stringify(process.env, null, 2));
-  console.log('SCHEDULED EVENT', JSON.stringify(event, null, 2));
+import { INestApplication } from '@nestjs/common';
+
+import { createApp } from './app';
+import { CommitsService } from './commits/commits.service';
+import { config } from './config';
+
+let cachedApp: INestApplication;
+
+export const handler = async () => {
+  const { data } = await axios.get(config.APICommitMessagesURL);
+
+  const $ = load(data);
+
+  const [commitMessage] = $('#content').text().trim().split('\n');
+
+  if (!cachedApp) {
+    cachedApp = await createApp();
+  }
+
+  await cachedApp.init();
+
+  const commitsService = cachedApp.get(CommitsService);
+
+  await commitsService.createCommit({
+    message: commitMessage,
+  });
 
   return {
     statusCode: 200,

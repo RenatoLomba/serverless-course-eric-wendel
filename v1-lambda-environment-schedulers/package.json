@@ -30,6 +30,8 @@
     "@nestjs/platform-express": "^9.0.0",
     "@vendia/serverless-express": "^4.10.1",
     "aws-sdk": "^2.1281.0",
+    "axios": "^1.2.1",
+    "cheerio": "^1.0.0-rc.12",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"

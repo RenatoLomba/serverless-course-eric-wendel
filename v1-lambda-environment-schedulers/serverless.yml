@@ -17,7 +17,7 @@ provider:
     ${file(./config/serverless/db.iam.role.yaml)}
 
 custom:
-  schedulerRate: rate(1 minute)
+  schedulerRate: ${self:provider.environment.CommitMessagesSchedulerRate}
   commitMessagesTableName: ${self:provider.environment.CommitMessagesTableName}
   commitMessagesTableWrite: ${self:provider.environment.CommitMessagesTableWriteCapacityUnits}
   commitMessagesTableRead: ${self:provider.environment.CommitMessagesTableReadCapacityUnits}
