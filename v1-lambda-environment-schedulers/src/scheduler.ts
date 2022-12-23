@@ -1,8 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 
 import { createApp } from './app';
-import { CommitsApiProvider } from './commits/commits-api.provider';
-import { CommitsService } from './commits/commits.service';
+import { CommitSchedulerHandler } from './commits/commit-scheduler.handler';
 
 let cachedApp: INestApplication;
 
@@ -13,15 +12,5 @@ export const handler = async () => {
 
   await cachedApp.init();
 
-  const commitsApiProvider = cachedApp.get(CommitsApiProvider);
-  const commitMessage = await commitsApiProvider.getNewCommitMessage();
-
-  const commitsService = cachedApp.get(CommitsService);
-  await commitsService.createCommit({
-    message: commitMessage,
-  });
-
-  return {
-    statusCode: 200,
-  };
+  return await cachedApp.get(CommitSchedulerHandler).handle();
 };
