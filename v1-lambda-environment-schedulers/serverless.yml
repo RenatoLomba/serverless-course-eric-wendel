@@ -4,13 +4,36 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-jetpack
+  - serverless-localstack
 
 provider:
   name: aws
   runtime: nodejs14.x
   region: us-east-1
+  stage: ${opt:stage, "dev"}
   environment:
-    NODE_ENV: ${opt:stage, "dev"}
+    ${file(./config/env.${self:provider.stage}.json)}
+  iamRoleStatements:
+    ${file(./config/serverless/db.iam.role.yaml)}
+
+custom:
+  schedulerRate: rate(1 minute)
+  commitMessagesTableName: ${self:provider.environment.CommitMessagesTableName}
+  commitMessagesTableWrite: ${self:provider.environment.CommitMessagesTableWriteCapacityUnits}
+  commitMessagesTableRead: ${self:provider.environment.CommitMessagesTableReadCapacityUnits}
+  commitMessagesTableArn: !GetAtt CommitMessagesTable.Arn
+  localstack:
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    autostart: true
+    docker:
+      sudo: False
+
+resources:
+  Resources:
+    ${file(./config/serverless/resources/commit-messages-table.dynamodb.yaml)}
 
 functions:
   api:
@@ -20,3 +43,11 @@ functions:
           method: any
           path: /{proxy+}
           cors: true
+  commit-message-scheduler:
+    handler: dist/scheduler.handler
+    events:
+      - schedule:
+          rate: ${self:custom.schedulerRate}
+          name: schedule-commit-message-${self:provider.stage}
+          description: get commit messages each minute
+          enabled: true

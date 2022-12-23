@@ -1,0 +1,17 @@
+CommitMessagesTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: ${self:custom.commitMessagesTableName}
+    AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      - AttributeName: message
+        AttributeType: S
+    KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      - AttributeName: message
+        KeyType: RANGE
+    ProvisionedThroughput:
+      ReadCapacityUnits: ${self:custom.commitMessagesTableRead}
+      WriteCapacityUnits: ${self:custom.commitMessagesTableWrite}

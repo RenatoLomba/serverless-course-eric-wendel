@@ -2,31 +2,31 @@ import { DynamoDB, Endpoint } from 'aws-sdk';
 
 import { Module } from '@nestjs/common';
 
-import { HeroController } from './hero.controller';
-import { HeroService } from './hero.service';
+import { CommitsController } from './commits.controller';
+import { CommitsService } from './commits.service';
 
 @Module({
-  controllers: [HeroController],
+  controllers: [CommitsController],
   providers: [
-    HeroService,
+    CommitsService,
     {
       provide: 'DYNAMODB',
       useFactory: () => {
         const isLocal = process.env.NODE_ENV === 'local';
 
-        const dynamoDbConfig: DynamoDB.ClientConfiguration = {
+        const dynamoDBConfig: DynamoDB.ClientConfiguration = {
           region: process.env.AWS_REGION,
         };
 
         if (isLocal) {
           const host = process.env.LOCALSTACK_HOSTNAME;
 
-          dynamoDbConfig.endpoint = new Endpoint(`http://${host}:4566`);
+          dynamoDBConfig.endpoint = new Endpoint(`http://${host}:4566`);
         }
 
-        return new DynamoDB(dynamoDbConfig);
+        return new DynamoDB.DocumentClient(dynamoDBConfig);
       },
     },
   ],
 })
-export class HeroModule {}
+export class CommitsModule {}

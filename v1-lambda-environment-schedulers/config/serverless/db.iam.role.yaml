@@ -1,0 +1,9 @@
+- Effect: Allow
+  Action:
+    - dynamodb:GetItem
+    - dynamodb:PutItem
+    - dynamodb:Select
+    - dynamodb:Attributes
+    - dynamodb:Scan
+    - dynamodb:ReturnConsumedCapacity
+  Resource: ${self:custom.commitMessagesTableArn}
