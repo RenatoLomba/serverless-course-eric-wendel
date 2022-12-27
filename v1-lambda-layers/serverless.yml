@@ -1,0 +1,34 @@
+service: lambda-layers
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-jetpack
+  - serverless-localstack
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+  stage: ${opt:stage, "dev"}
+  environment:
+    ${file(./config/env.${self:provider.stage}.json)}
+
+custom:
+  localstack:
+    stages:
+      - local
+    host: http://localhost
+    edgePort: 4566
+    autostart: true
+    docker:
+      sudo: False
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: any
+          path: /{proxy+}
+          cors: true
