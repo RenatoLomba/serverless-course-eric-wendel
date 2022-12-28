@@ -1,4 +1,4 @@
-service: lambda-layers
+service: sls-localstack-nest-docker-example
 
 frameworkVersion: '3'
 
